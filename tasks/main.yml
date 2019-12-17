@@ -1,0 +1,30 @@
+---
+# tasks file for ansible-docker-push
+- name: Extract docker-image.tar.gz 
+  unarchive:
+    src: "{{ source_dir }}/docker-images.tar.gz"
+    dest: "{{ source_dir }}"
+
+- name: read manifest
+  include_vars: 
+      file: "{{ source_dir }}/manifest.yml"
+      
+- name: Log into private registry and force re-authorization
+  docker_login:
+    registry: "{{ target_repo }}"
+    username: admin
+    password: changeme
+    reauthorize: yes
+
+
+- name: Load image from archive and tag and push
+  docker_image:
+    repository: "{{ target_repo }}/{{ target_project }}/{{ item.split(':')[0] }}:{{ item.split(':')[1] }}"
+    name: "{{ item.split(':')[0] }}:{{ item.split(':')[1] }}"
+    force_tag: yes
+    push: yes
+    load_path: "{{ source_dir }}/{{ item.split(':')[0] }}.tar"
+    source: load
+  with_items:
+    - "{{ image_list }}"
+

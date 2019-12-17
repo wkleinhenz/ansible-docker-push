@@ -1,0 +1,5 @@
+---
+# defaults file for ansible-docker-push
+source_dir: /opt
+target_repo: harbor-01.kleinhenz.tech
+target_project: general
